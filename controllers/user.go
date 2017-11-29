@@ -1,0 +1,242 @@
+package controllers
+
+import (
+	"github.com/ActingCute/NeteaseCloudMusicApi/models"
+	"encoding/json"
+	"strings"
+	"net/url"
+)
+
+// Operations about Users
+type UserController struct {
+	baseController
+}
+
+type login struct {
+	Username      string `json:"username"`
+	Password      string `json:"password"`
+	RememberLogin bool `json:"rememberLogin"`
+	ClientToken   string `json:"clientToken"`
+}
+
+type phonelogin struct {
+	Phone         string `json:"phone"`
+	Password      string `json:"password"`
+	RememberLogin bool `json:"rememberLogin"`
+	ClientToken   string `json:"clientToken"`
+}
+
+type User struct {
+	LoginType int `json:"loginType"`
+	Code      int `json:"code"`
+	Account   UserAccount
+	Profile   UserProfile
+	Bindings  []UserBindings
+}
+
+type UserAccount struct {
+	Id                 int64 `json:"id"`
+	UserName           string`json:"userName"`
+	Type               int `json:"type"`
+	Status             int `json:"status"`
+	WhitelistAuthority int `json:"whitelistAuthority"`
+	CreateTime         int64 `json:"createTime"`
+	Salt               string `json:"salt"`
+	TokenVersion       int `json:"tokenVersion"`
+	Ban                int `json:"ban"`
+	BaoyueVersion      int `json:"baoyueVersion"`
+	DonateVersion      int`json:"donateVersion"`
+	VipType            int `json:"vipType"`
+	ViptypeVersion     int `json:"viptypeVersion"`
+	AnonimousUser      bool `json:"anonimousUser"`
+}
+
+type UserProfile struct {
+	DetailDescription  string `json:"detailDescription"`
+	DjStatus           int `json:"djStatus"`
+	Followed           bool `json:"followed"`
+	Description        string `json:"description"`
+	AvatarImgId        int64 `json:"avatarImgId"`
+	ExpertTags         string `json:"expertTags"` //null
+	AuthStatus         int `json:"authStatus"`
+	BackgroundImgId    int64 `json:"backgroundImgId"`
+	UserType           int `json:"userType"`
+	Experts            int`json:"experts"`        //{}
+	BackgroundUrl      string `json:"backgroundUrl"`
+	AvatarImgIdStr     int64 `json:"avatarImgIdStr"`
+	BackgroundImgIdStr int64 `json:"backgroundImgIdStr"`
+	UserId             int64 `json:"userId"`
+	AccountStatus      int `json:"accountStatus"`
+	Nickname           string `json:"nickname"`
+	RemarkName         string `json:"remarkName"` //null
+	Mutual             bool `json:"mutual"`
+	Province           int64 `json:"province"`
+	DefaultAvatar      bool `json:"defaultAvatar"`
+	AvatarUrl          string `json:"avatarUrl"`
+	Gende              int `json:"gende"`
+	Birthday           int64 `json:"birthday"`
+	City               int64 `json:"city"`
+	VipType            int `json:"vipType"`
+	Signature          string`json:"signature"`
+	Authority          int `json:"authority"`
+	AvatarImgId_str    int64 `json:"avatarImgId_str"`
+}
+
+type UserBindings struct {
+	ExpiresIn    int64 `json:"expiresIn"`
+	RefreshTime  int64 `json:"refreshTime"`
+	Url          string `json:"url"`
+	UserId       int64 `json:"userId"`
+	TokenJsonStr UserTokenJsonStr
+	Expired      bool `json:"expired"`
+	Id           int64 `json:"id"`
+	Type         int `json:"type"`
+}
+
+type UserTokenJsonStr struct {
+	Countrycode string `json:"countrycode"`
+	Cellphone   int64 `json:"cellphone"`
+	HasPassword bool `json:"hasPassword"`
+}
+
+const clientToken = "1_jVUMqWEPke0/1/Vu56xCmJpo5vP1grjn_SOVVDzOc78w8OKLVZ2JH7IfkjSXqgfmh"
+
+// @Title CreateUser
+// @Description create users
+// @Param	body		body 	models.User	true		"body for user content"
+// @Success 200 {int} models.User.Id
+// @Failure 403 body is empty
+// @router / [post]
+func (u *UserController) Post() {
+	var user models.User
+	json.Unmarshal(u.Ctx.Input.RequestBody, &user)
+	uid := models.AddUser(user)
+	u.Data["json"] = map[string]string{"uid": uid}
+	u.ServeJSON()
+}
+
+// @Title GetAll
+// @Description get all Users
+// @Success 200 {object} models.User
+// @router / [get]
+func (u *UserController) GetAll() {
+	users := models.GetAllUsers()
+	u.Data["json"] = users
+	u.ServeJSON()
+}
+
+// @Title Get
+// @Description get user by uid
+// @Param	uid		path 	string	true		"The key for staticblock"
+// @Success 200 {object} models.User
+// @Failure 403 :uid is empty
+// @router /:uid [get]
+func (u *UserController) Get() {
+	uid := u.GetString(":uid")
+	if uid != "" {
+		user, err := models.GetUser(uid)
+		if err != nil {
+			u.Data["json"] = err.Error()
+		} else {
+			u.Data["json"] = user
+		}
+	}
+	u.ServeJSON()
+}
+
+// @Title Update
+// @Description update the user
+// @Param	uid		path 	string	true		"The uid you want to update"
+// @Param	body		body 	models.User	true		"body for user content"
+// @Success 200 {object} models.User
+// @Failure 403 :uid is not int
+// @router /:uid [put]
+func (u *UserController) Put() {
+	uid := u.GetString(":uid")
+	if uid != "" {
+		var user models.User
+		json.Unmarshal(u.Ctx.Input.RequestBody, &user)
+		uu, err := models.UpdateUser(uid, &user)
+		if err != nil {
+			u.Data["json"] = err.Error()
+		} else {
+			u.Data["json"] = uu
+		}
+	}
+	u.ServeJSON()
+}
+
+// @Title Delete
+// @Description delete the user
+// @Param	uid		path 	string	true		"The uid you want to delete"
+// @Success 200 {string} delete success!
+// @Failure 403 uid is empty
+// @router /:uid [delete]
+func (u *UserController) Delete() {
+	uid := u.GetString(":uid")
+	models.DeleteUser(uid)
+	u.Data["json"] = "delete success!"
+	u.ServeJSON()
+}
+
+// @Title Login
+// @Description Logs user into the system
+// @Param	username		query 	string	true		"The username for login"
+// @Param	password		query 	string	true		"The password for login"
+// @Success 200 {string} login success
+// @Failure 403 user not exist
+// @router /login [get]
+func (this *UserController) Login() {
+	var loginjson phonelogin
+	loginjson.Password = Md5(this.GetString("password"))
+	loginjson.Phone = this.GetString("phone")
+	loginjson.RememberLogin = true
+	loginjson.ClientToken = clientToken
+	logindata, err := json.Marshal(loginjson)
+	if err != nil {
+		this.Data["json"] = err
+		this.ServeJSON()
+		return
+
+	}
+	//cookie := this.Ctx.GetCookie("Cookie")
+	params, encSecKey, err := EncParams(string(logindata))
+
+	if err != nil {
+		this.Data["json"] = err
+		this.ServeJSON()
+		return
+
+	}
+
+	form := url.Values{}
+	form.Set("encSecKey", encSecKey)
+	form.Set("params", params)
+	data := strings.NewReader(form.Encode())
+
+	body, err := this.HttpPost(BaseApi + PhoneLoginApi, data)
+	if err != nil {
+		this.Data["json"] = err
+	} else {
+		var user User
+		json.Unmarshal(body,&user)
+		this.Data["json"] = user
+	}
+	if this.GetString("phone") == "" {
+		this.Data["json"] = "phone empty"
+	}
+	if this.GetString("password") == "" {
+		this.Data["json"] = "password empty"
+	}
+	this.ServeJSON()
+}
+
+// @Title logout
+// @Description Logs out current logged in user session
+// @Success 200 {string} logout success
+// @router /logout [get]
+func (u *UserController) Logout() {
+	u.Data["json"] = "logout success"
+	u.ServeJSON()
+}
+
