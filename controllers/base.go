@@ -10,16 +10,59 @@ import (
 	"encoding/hex"
 	"math/rand"
 	"strings"
+	"github.com/beego/i18n"
+	"github.com/ActingCute/NeteaseCloudMusicApi/models"
 )
 
 type baseController struct {
 	beego.Controller
+	i18n.Locale
+}
+
+type RestfulReturn struct {
+	Result  int16
+	Message string
+	Data    interface{}
+}
+
+type langType struct {
+	Lang, Name string
 }
 
 var (
 	BaseApi = "http://music.163.com"
 	PhoneLoginApi = "/weapi/login/cellphone"
+	langTypes   []*langType
 )
+
+func init() {
+	initLang()
+}
+
+//语言配置
+func initLang() {
+
+	langs := strings.Split(models.GetAppConf("lang::types"), "|")
+	names := strings.Split(models.GetAppConf("lang::names"), "|")
+	langTypes = make([]*langType, 0, len(langs))
+
+	for i, v := range langs {
+		langTypes = append(langTypes, &langType{
+			Lang: v,
+			Name: names[i],
+		})
+	}
+
+	for _, lang := range langs {
+		if err := i18n.SetMessage(lang, beego.AppPath + "\\languages\\default\\" + lang + ".ini"); err != nil {
+			beego.Error("Fail to set message file: " + err.Error())
+			return
+		} else {
+			beego.Trace("Loading language" + lang)
+		}
+	}
+
+}
 
 func (this *baseController)HttpPost(url string, data *strings.Reader) ([]byte, error) {
 	request, err := http.NewRequest("POST", url, data)
@@ -46,8 +89,6 @@ func (this *baseController)HttpPost(url string, data *strings.Reader) ([]byte, e
 	return b, err
 }
 
-
-
 func (this *baseController)getRequestHeader(request *http.Request) *http.Request {
 	request.Header.Set("Accept", "*/*")
 	request.Header.Set("Accept-Language", "zh-CN,zh;q=0.8,gl;q=0.6,zh-TW;q=0.4")
@@ -70,9 +111,9 @@ func GetBytes(key interface{}) ([]byte, error) {
 	return buf.Bytes(), nil
 }
 
-
 func (this *baseController)Md5(str string) string {
-	if len(str) < 1 { //什么都没有,不给你加密
+	if len(str) < 1 {
+		//什么都没有,不给你加密
 		return str
 	}
 	c := md5.New()
@@ -106,3 +147,58 @@ func (this *baseController)RandomUserAgent() string {
 	num := rand.Intn(len(userAgentList))
 	return userAgentList[num]
 }
+
+func (this *baseController) NeedAPIinput(fields ...string) {
+
+	for _, field := range fields {
+
+		if len(this.GetString(field)) == 0 {
+			resultStringList := map[string]string{
+				"phone":  "please_enter_phone",
+				"password":  "please_enter_password",
+			}
+			beego.Debug("缺少参数-----", resultStringList[field])
+			this.SetReturnData(400, this.L(resultStringList[field]), nil)
+			this.StopRun()
+		}
+	}
+
+}
+
+func (this *baseController) SetReturnData(result int, message string, data interface{}) {
+
+	rt := &RestfulReturn{Result: int16(result), Message: message, Data: data}
+	this.Data["json"] = rt
+	this.ServeJSON()
+
+}
+func (this *baseController) L(name string) string {
+
+	return this.Tr(name)
+
+}
+
+//处理返回code
+func (this *baseController)StatusCode(code int) bool {
+	switch code {
+	case 200:
+		return true
+	case 502:
+		return false
+	default:
+		return false
+	}
+}
+
+//判断登录是否过期
+//func (this *baseController)IsLogin() bool{
+//	if UserInfo.Account.Id < 1 {
+//		return false
+//	}
+//	t := UserInfo.Account.Type
+//	for _,v := range UserInfo.Bindings {
+//		if v.Type == t {
+//
+//		}
+//	}
+//}

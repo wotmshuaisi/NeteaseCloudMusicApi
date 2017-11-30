@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"strings"
 	"net/url"
+	"github.com/astaxie/beego"
 )
 
 // Operations about Users
@@ -32,6 +33,7 @@ type User struct {
 	Account   UserAccount
 	Profile   UserProfile
 	Bindings  []UserBindings
+	Msg       string `json:"msg"`
 }
 
 type UserAccount struct {
@@ -98,6 +100,10 @@ type UserTokenJsonStr struct {
 	Cellphone   int64 `json:"cellphone"`
 	HasPassword bool `json:"hasPassword"`
 }
+
+var (
+	UserInfo User
+)
 
 const clientToken = "1_jVUMqWEPke0/1/Vu56xCmJpo5vP1grjn_SOVVDzOc78w8OKLVZ2JH7IfkjSXqgfmh"
 
@@ -179,14 +185,24 @@ func (u *UserController) Delete() {
 	u.ServeJSON()
 }
 
-// @Title Login
+// @Title CellphoneLogin
 // @Description Logs user into the system
-// @Param	username		query 	string	true		"The username for login"
+// @Param	phone			query 	string	true		"The phone    for login"
 // @Param	password		query 	string	true		"The password for login"
 // @Success 200 {string} login success
-// @Failure 403 user not exist
-// @router /login [get]
-func (this *UserController) Login() {
+// @Failure 400 param error
+// @Failure 500 Program error
+// @Failure 501 Account number does not exist
+// @Failure 502 Password error
+// @router /cellphonelogin [get]
+func (this *UserController) CellphoneLogin() {
+	if UserInfo.Account.Id > 0 {
+		beego.Debug("不需要重复登录")
+		beego.Debug(this.Ctx.GetCookie("Set-Cookie"))
+		this.SetReturnData(200, "login success", UserInfo)
+		return
+	}
+	this.NeedAPIinput("phone", "password")
 	var loginjson phonelogin
 	loginjson.Password = Md5(this.GetString("password"))
 	loginjson.Phone = this.GetString("phone")
@@ -194,17 +210,14 @@ func (this *UserController) Login() {
 	loginjson.ClientToken = clientToken
 	logindata, err := json.Marshal(loginjson)
 	if err != nil {
-		this.Data["json"] = err
-		this.ServeJSON()
+		this.SetReturnData(500, "Program error", err)
 		return
-
 	}
 	//cookie := this.Ctx.GetCookie("Cookie")
 	params, encSecKey, err := EncParams(string(logindata))
 
 	if err != nil {
-		this.Data["json"] = err
-		this.ServeJSON()
+		this.SetReturnData(500, "Program error", err)
 		return
 
 	}
@@ -216,19 +229,19 @@ func (this *UserController) Login() {
 
 	body, err := this.HttpPost(BaseApi + PhoneLoginApi, data)
 	if err != nil {
-		this.Data["json"] = err
-	} else {
-		var user User
-		json.Unmarshal(body,&user)
-		this.Data["json"] = user
+		this.SetReturnData(500, "Program error", err)
+		return
 	}
-	if this.GetString("phone") == "" {
-		this.Data["json"] = "phone empty"
+	json.Unmarshal(body, &UserInfo)
+	if !this.StatusCode(UserInfo.Code) {
+		msg := UserInfo.Msg
+		if UserInfo.Code == 400 {
+			msg = "Account_or_password_error"
+		}
+		this.SetReturnData(UserInfo.Code, msg, nil)
+		return
 	}
-	if this.GetString("password") == "" {
-		this.Data["json"] = "password empty"
-	}
-	this.ServeJSON()
+	this.SetReturnData(200, "login success", UserInfo)
 }
 
 // @Title logout

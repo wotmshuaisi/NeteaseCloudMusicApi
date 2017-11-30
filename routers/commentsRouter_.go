@@ -89,8 +89,8 @@ func init() {
 
 	beego.GlobalControllerRouter["github.com/ActingCute/NeteaseCloudMusicApi/controllers:UserController"] = append(beego.GlobalControllerRouter["github.com/ActingCute/NeteaseCloudMusicApi/controllers:UserController"],
 		beego.ControllerComments{
-			Method: "Login",
-			Router: `/login`,
+			Method: "CellphoneLogin",
+			Router: `/CellphoneLogin`,
 			AllowHTTPMethods: []string{"get"},
 			MethodParams: param.Make(),
 			Params: nil})

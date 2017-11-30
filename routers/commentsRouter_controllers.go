@@ -17,16 +17,16 @@ func init() {
 
 	beego.GlobalControllerRouter["github.com/ActingCute/NeteaseCloudMusicApi/controllers:ObjectController"] = append(beego.GlobalControllerRouter["github.com/ActingCute/NeteaseCloudMusicApi/controllers:ObjectController"],
 		beego.ControllerComments{
-			Method: "GetAll",
-			Router: `/`,
+			Method: "Get",
+			Router: `/:objectId`,
 			AllowHTTPMethods: []string{"get"},
 			MethodParams: param.Make(),
 			Params: nil})
 
 	beego.GlobalControllerRouter["github.com/ActingCute/NeteaseCloudMusicApi/controllers:ObjectController"] = append(beego.GlobalControllerRouter["github.com/ActingCute/NeteaseCloudMusicApi/controllers:ObjectController"],
 		beego.ControllerComments{
-			Method: "Get",
-			Router: `/:objectId`,
+			Method: "GetAll",
+			Router: `/`,
 			AllowHTTPMethods: []string{"get"},
 			MethodParams: param.Make(),
 			Params: nil})
@@ -89,8 +89,8 @@ func init() {
 
 	beego.GlobalControllerRouter["github.com/ActingCute/NeteaseCloudMusicApi/controllers:UserController"] = append(beego.GlobalControllerRouter["github.com/ActingCute/NeteaseCloudMusicApi/controllers:UserController"],
 		beego.ControllerComments{
-			Method: "Login",
-			Router: `/login`,
+			Method: "CellphoneLogin",
+			Router: `/cellphonelogin`,
 			AllowHTTPMethods: []string{"get"},
 			MethodParams: param.Make(),
 			Params: nil})
