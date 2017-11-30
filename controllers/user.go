@@ -196,10 +196,9 @@ func (u *UserController) Delete() {
 // @Failure 502 Password error
 // @router /cellphonelogin [get]
 func (this *UserController) CellphoneLogin() {
-	if UserInfo.Account.Id > 0 {
-		beego.Debug("不需要重复登录")
-		beego.Debug(this.Ctx.GetCookie("Set-Cookie"))
-		this.SetReturnData(200, "login success", UserInfo)
+	if len(this.Ctx.GetCookie("MUSIC_U")) > 0 {
+		beego.Debug(this.Ctx.GetCookie("MUSIC_U"))
+		this.SetReturnData(200, "login success", nil)
 		return
 	}
 	this.NeedAPIinput("phone", "password")

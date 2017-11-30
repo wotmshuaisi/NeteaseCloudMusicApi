@@ -10,7 +10,7 @@ import (
 	"encoding/hex"
 	"math/rand"
 	"strings"
-	"github.com/beego/i18n"
+	"github.com/astaxie/beego/i18n"
 	"github.com/ActingCute/NeteaseCloudMusicApi/models"
 )
 
@@ -85,6 +85,12 @@ func (this *baseController)HttpPost(url string, data *strings.Reader) ([]byte, e
 	if err != nil {
 		beego.Error("Post ReadAll failed,[err=%s][url=%s]", err, url)
 		return []byte(""), err
+	}
+	cookie := resp.Header["Set-Cookie"]
+	if len(cookie) > 0{
+		for _, c := range resp.Cookies() {
+			request.AddCookie(c)
+		}
 	}
 	return b, err
 }
