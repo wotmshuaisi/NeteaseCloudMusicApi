@@ -32,6 +32,7 @@ type langType struct {
 var (
 	BaseApi = "http://music.163.com"
 	PhoneLoginApi = "/weapi/login/cellphone"
+	MusicListApi = "/weapi/user/playlist"
 	langTypes   []*langType
 )
 
@@ -64,11 +65,11 @@ func initLang() {
 
 }
 
-func (this *baseController)HttpPost(url string, data *strings.Reader) ([]byte, error) {
-	request, err := http.NewRequest("POST", url, data)
+func (this *baseController)Http(url string, data *strings.Reader, method string) (b []byte,err error) {
+	request, err := http.NewRequest(method, url, data)
 	if err != nil {
 		beego.Error("Post NewRequest ,[err=%s][url=%s]", err, url)
-		return []byte(""), err
+		return
 	}
 
 	request = this.getRequestHeader(request)
@@ -78,21 +79,23 @@ func (this *baseController)HttpPost(url string, data *strings.Reader) ([]byte, e
 
 	if err != nil {
 		beego.Error("Post http.Do failed,[err=%s][url=%s]", err, url)
-		return []byte(""), err
+		return
 	}
 	defer resp.Body.Close()
-	b, err := ioutil.ReadAll(resp.Body)
+	b, err = ioutil.ReadAll(resp.Body)
 	if err != nil {
 		beego.Error("Post ReadAll failed,[err=%s][url=%s]", err, url)
-		return []byte(""), err
+		return
 	}
 	cookie := resp.Header["Set-Cookie"]
-	if len(cookie) > 0{
+	if len(cookie) > 0 {
 		for _, c := range resp.Cookies() {
-			request.AddCookie(c)
+			if len(c.Value) > 0{
+				this.Ctx.SetCookie(c.Name,c.Value,c.Domain,c.Path,c.HttpOnly,c.MaxAge,c.Raw,c.RawExpires,c.Secure)
+			}
 		}
 	}
-	return b, err
+	return
 }
 
 func (this *baseController)getRequestHeader(request *http.Request) *http.Request {
@@ -197,14 +200,10 @@ func (this *baseController)StatusCode(code int) bool {
 }
 
 //判断登录是否过期
-//func (this *baseController)IsLogin() bool{
-//	if UserInfo.Account.Id < 1 {
-//		return false
-//	}
-//	t := UserInfo.Account.Type
-//	for _,v := range UserInfo.Bindings {
-//		if v.Type == t {
-//
-//		}
-//	}
-//}
+func (this *baseController)IsLogin() bool {
+	beego.Debug(this.Ctx.Request.Cookies())
+	if len(this.Ctx.GetCookie("MUSIC_U")) < 1 || len(this.Ctx.GetCookie("uid")) < 1 {
+		return false
+	}
+	return true
+}

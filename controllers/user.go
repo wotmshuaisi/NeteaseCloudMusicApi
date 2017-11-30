@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"strings"
 	"net/url"
-	"github.com/astaxie/beego"
+	"strconv"
 )
 
 // Operations about Users
@@ -196,8 +196,7 @@ func (u *UserController) Delete() {
 // @Failure 502 Password error
 // @router /cellphonelogin [get]
 func (this *UserController) CellphoneLogin() {
-	if len(this.Ctx.GetCookie("MUSIC_U")) > 0 {
-		beego.Debug(this.Ctx.GetCookie("MUSIC_U"))
+	if this.IsLogin() {
 		this.SetReturnData(200, "login success", nil)
 		return
 	}
@@ -226,7 +225,7 @@ func (this *UserController) CellphoneLogin() {
 	form.Set("params", params)
 	data := strings.NewReader(form.Encode())
 
-	body, err := this.HttpPost(BaseApi + PhoneLoginApi, data)
+	body, err := this.Http(BaseApi + PhoneLoginApi, data, "POST")
 	if err != nil {
 		this.SetReturnData(500, "Program error", err)
 		return
@@ -240,6 +239,7 @@ func (this *UserController) CellphoneLogin() {
 		this.SetReturnData(UserInfo.Code, msg, nil)
 		return
 	}
+	this.Ctx.SetCookie("uid", strconv.FormatInt(UserInfo.Account.Id, 10), -1, "/")
 	this.SetReturnData(200, "login success", UserInfo)
 }
 
@@ -252,3 +252,26 @@ func (u *UserController) Logout() {
 	u.ServeJSON()
 }
 
+// @Title playlist
+// @Description get user playlist
+// @Success 200 {string} get playlist success
+// @router /playlist [get]
+func (this *UserController) Playlist() {
+	if !this.IsLogin() {
+		this.SetReturnData(200, "login Expires", nil)
+		return
+	}
+	form := url.Values{}
+	form.Set("offset", "0")
+	form.Set("uid", this.Ctx.GetCookie("uid"))
+	form.Set("limit", "1000")
+	form.Set("csrf_token", "")
+	data := strings.NewReader(form.Encode())
+
+	body, err := this.Http(BaseApi + MusicListApi, data, "POST")
+	if err != nil {
+		this.SetReturnData(500, "Program error", err)
+		return
+	}
+	this.SetReturnData(200, "ok", string(body))
+}
