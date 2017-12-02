@@ -3,9 +3,8 @@ package controllers
 import (
 	"github.com/ActingCute/NeteaseCloudMusicApi/models"
 	"encoding/json"
-	"strings"
-	"net/url"
 	"strconv"
+	"github.com/astaxie/beego"
 )
 
 // Operations about Users
@@ -25,6 +24,18 @@ type phonelogin struct {
 	Password      string `json:"password"`
 	RememberLogin bool `json:"rememberLogin"`
 	ClientToken   string `json:"clientToken"`
+}
+
+//form.Set("offset", "0")
+//form.Set("uid", this.GetString("uid"))
+//form.Set("limit", "1000")
+//form.Set("csrf_token", "")
+
+type Playlist struct {
+	Uid        int64 `json:"uid"`
+	Offset     int `json:"offset"`
+	Limit      int `json:"limit"`
+	Csrf_token string `json:"csrf_token"`
 }
 
 type User struct {
@@ -197,7 +208,8 @@ func (u *UserController) Delete() {
 // @router /cellphonelogin [get]
 func (this *UserController) CellphoneLogin() {
 	if this.IsLogin() {
-		this.SetReturnData(200, "login success", nil)
+		UidStr = strconv.FormatInt(UserInfo.Account.Id, 10)
+		this.SetReturnData(200, "login success", UserInfo)
 		return
 	}
 	this.NeedAPIinput("phone", "password")
@@ -211,21 +223,7 @@ func (this *UserController) CellphoneLogin() {
 		this.SetReturnData(500, "Program error", err)
 		return
 	}
-	//cookie := this.Ctx.GetCookie("Cookie")
-	params, encSecKey, err := EncParams(string(logindata))
-
-	if err != nil {
-		this.SetReturnData(500, "Program error", err)
-		return
-
-	}
-
-	form := url.Values{}
-	form.Set("encSecKey", encSecKey)
-	form.Set("params", params)
-	data := strings.NewReader(form.Encode())
-
-	body, err := this.Http(BaseApi + PhoneLoginApi, data, "POST")
+	body, err := this.Http(BaseApi + PhoneLoginApi, logindata, "POST")
 	if err != nil {
 		this.SetReturnData(500, "Program error", err)
 		return
@@ -240,6 +238,17 @@ func (this *UserController) CellphoneLogin() {
 		return
 	}
 	this.Ctx.SetCookie("uid", strconv.FormatInt(UserInfo.Account.Id, 10), -1, "/")
+	if !this.IsLogin() {
+		this.SetReturnData(200, "login fail", this.Ctx.Request.Cookies())
+	}
+	UidStr = strconv.FormatInt(UserInfo.Account.Id, 10)
+
+	beego.Debug("Cookies===", this.Ctx.Request.Cookies())
+
+	//for _,c := range Cookies {
+	//	this.Ctx.Request.AddCookie(c)
+	//}
+
 	this.SetReturnData(200, "login success", UserInfo)
 }
 
@@ -257,18 +266,26 @@ func (u *UserController) Logout() {
 // @Success 200 {string} get playlist success
 // @router /playlist [get]
 func (this *UserController) Playlist() {
-	if !this.IsLogin() {
-		this.SetReturnData(200, "login Expires", nil)
+	this.NeedAPIinput("uid")
+	uid, _ := this.GetInt64("uid")
+	if uid < 1 {
+		this.SetReturnData(500, "uid error", nil)
 		return
 	}
-	form := url.Values{}
-	form.Set("offset", "0")
-	form.Set("uid", this.Ctx.GetCookie("uid"))
-	form.Set("limit", "1000")
-	form.Set("csrf_token", "")
-	data := strings.NewReader(form.Encode())
 
-	body, err := this.Http(BaseApi + MusicListApi, data, "POST")
+	var playlist Playlist
+	playlist.Uid = uid
+	playlist.Csrf_token = ""
+	playlist.Limit = 1000
+	playlist.Offset = 0
+
+	playlistdata, err := json.Marshal(playlist)
+	if err != nil {
+		this.SetReturnData(500, "Program error", err)
+		return
+	}
+
+	body, err := this.Http(BaseApi + MusicListApi, playlistdata, "POST")
 	if err != nil {
 		this.SetReturnData(500, "Program error", err)
 		return

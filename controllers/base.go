@@ -12,6 +12,8 @@ import (
 	"strings"
 	"github.com/astaxie/beego/i18n"
 	"github.com/ActingCute/NeteaseCloudMusicApi/models"
+	"time"
+	"net/url"
 )
 
 type baseController struct {
@@ -34,6 +36,8 @@ var (
 	PhoneLoginApi = "/weapi/login/cellphone"
 	MusicListApi = "/weapi/user/playlist"
 	langTypes   []*langType
+	UidStr string
+	Cookies []*http.Cookie
 )
 
 func init() {
@@ -65,35 +69,50 @@ func initLang() {
 
 }
 
-func (this *baseController)Http(url string, data *strings.Reader, method string) (b []byte,err error) {
-	request, err := http.NewRequest(method, url, data)
+func (this *baseController)Http(apiurl string, data []byte, method string) (b []byte, err error) {
+
+	params, encSecKey, err := EncParams(string(data))
+
 	if err != nil {
-		beego.Error("Post NewRequest ,[err=%s][url=%s]", err, url)
+		this.SetReturnData(500, "Program error", err)
+		return
+
+	}
+
+	form := url.Values{}
+	form.Set("encSecKey", encSecKey)
+	form.Set("params", params)
+	formdata := strings.NewReader(form.Encode())
+
+	request, err := http.NewRequest(method, apiurl, formdata)
+	if err != nil {
+		beego.Error("Post NewRequest ,[err=%s][url=%s]", err, apiurl)
 		return
 	}
 
 	request = this.getRequestHeader(request)
 
+	for _, c := range Cookies {
+		request.AddCookie(c)
+	}
+
 	var resp *http.Response
 	resp, err = http.DefaultClient.Do(request)
 
+	beego.Debug(request)
+
 	if err != nil {
-		beego.Error("Post http.Do failed,[err=%s][url=%s]", err, url)
+		beego.Error("Post http.Do failed,[err=%s][url=%s]", err, apiurl)
 		return
 	}
 	defer resp.Body.Close()
 	b, err = ioutil.ReadAll(resp.Body)
 	if err != nil {
-		beego.Error("Post ReadAll failed,[err=%s][url=%s]", err, url)
+		beego.Error("Post ReadAll failed,[err=%s][url=%s]", err, apiurl)
 		return
 	}
-	cookie := resp.Header["Set-Cookie"]
-	if len(cookie) > 0 {
-		for _, c := range resp.Cookies() {
-			if len(c.Value) > 0{
-				this.Ctx.SetCookie(c.Name,c.Value,c.Domain,c.Path,c.HttpOnly,c.MaxAge,c.Raw,c.RawExpires,c.Secure)
-			}
-		}
+	if len(resp.Cookies()) > 0 {
+		Cookies = resp.Cookies()
 	}
 	return
 }
@@ -105,8 +124,9 @@ func (this *baseController)getRequestHeader(request *http.Request) *http.Request
 	request.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 	request.Header.Set("Referer", "http://music.163.com")
 	request.Header.Set("Host", "music.163.com")
-	request.Header.Set("Cookie", "cookie")
+	request.Header.Set("Cookie", "Cookie")
 	request.Header.Set("User-Agent", this.RandomUserAgent())
+
 	return request
 }
 
@@ -165,6 +185,7 @@ func (this *baseController) NeedAPIinput(fields ...string) {
 			resultStringList := map[string]string{
 				"phone":  "please_enter_phone",
 				"password":  "please_enter_password",
+				"uid": "please_enter_uid",
 			}
 			beego.Debug("缺少参数-----", resultStringList[field])
 			this.SetReturnData(400, this.L(resultStringList[field]), nil)
@@ -201,9 +222,39 @@ func (this *baseController)StatusCode(code int) bool {
 
 //判断登录是否过期
 func (this *baseController)IsLogin() bool {
-	beego.Debug(this.Ctx.Request.Cookies())
-	if len(this.Ctx.GetCookie("MUSIC_U")) < 1 || len(this.Ctx.GetCookie("uid")) < 1 {
-		return false
+	if len(Cookies) > 0 {
+		this.SetMusicCookies()
+		for _, v := range Cookies {
+			if v.Name == "MUSIC_U" {
+				if len(v.Value) > 0 {
+					expiresTime := v.Expires
+					if expiresTime.UTC().Unix() < time.Now().UTC().Unix() {
+						return false
+					}
+					return true
+				}
+			}
+		}
 	}
-	return true
+	return false
+}
+
+func (this baseController)SetMusicCookies() {
+	var cookieNum int = len(Cookies);
+	for i := 0; i < cookieNum; i++ {
+		var curCk *http.Cookie = Cookies[i];
+		this.Ctx.Output.Cookie(curCk.Name, curCk.Value, curCk.Path, curCk.Domain, curCk.Expires, curCk.RawExpires, curCk.MaxAge, curCk.Secure, curCk.HttpOnly, curCk.Raw, curCk.Unparsed)
+		//beego.Info("------ Cookie ------", i)
+		//beego.Info("Name\t=", curCk.Name)
+		//beego.Info("Value\t=", curCk.Value)
+		//beego.Info("Path\t=", curCk.Path)
+		//beego.Info("Domain\t=", curCk.Domain)
+		//beego.Info("Expires\t=", curCk.Expires)
+		//beego.Info("RawExpires=", curCk.RawExpires)
+		//beego.Info("MaxAge\t=", curCk.MaxAge)
+		//beego.Info("Secure\t=", curCk.Secure)
+		//beego.Info("HttpOnly=", curCk.HttpOnly)
+		//beego.Info("Raw\t=", curCk.Raw)
+		//beego.Info("Unparsed=", curCk.Unparsed)
+	}
 }
