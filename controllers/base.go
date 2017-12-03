@@ -31,13 +31,16 @@ type langType struct {
 	Lang, Name string
 }
 
-var (
+const (
 	BaseApi = "http://music.163.com"
 	PhoneLoginApi = "/weapi/login/cellphone"
 	MusicListApi = "/weapi/user/playlist"
+)
+
+var (
 	langTypes   []*langType
-	UidStr string
 	Cookies []*http.Cookie
+	RedisEnable bool
 )
 
 func init() {

@@ -208,7 +208,6 @@ func (u *UserController) Delete() {
 // @router /cellphonelogin [get]
 func (this *UserController) CellphoneLogin() {
 	if this.IsLogin() {
-		UidStr = strconv.FormatInt(UserInfo.Account.Id, 10)
 		this.SetReturnData(200, "login success", UserInfo)
 		return
 	}
@@ -241,8 +240,6 @@ func (this *UserController) CellphoneLogin() {
 	if !this.IsLogin() {
 		this.SetReturnData(200, "login fail", this.Ctx.Request.Cookies())
 	}
-	UidStr = strconv.FormatInt(UserInfo.Account.Id, 10)
-
 	beego.Debug("Cookies===", this.Ctx.Request.Cookies())
 
 	//for _,c := range Cookies {
@@ -272,6 +269,14 @@ func (this *UserController) Playlist() {
 		this.SetReturnData(500, "uid error", nil)
 		return
 	}
+	uidstr := this.GetString("uid")
+	cname := uidstr + "playlist"
+	list := GetCache(cname)
+	//beego.Debug(list)
+	if len(list) > 0 {
+		this.SetReturnData(200, "ok", list)
+		return
+	}
 
 	var playlist Playlist
 	playlist.Uid = uid
@@ -290,5 +295,6 @@ func (this *UserController) Playlist() {
 		this.SetReturnData(500, "Program error", err)
 		return
 	}
+	SetCache(cname,string(body),600)
 	this.SetReturnData(200, "ok", string(body))
 }
