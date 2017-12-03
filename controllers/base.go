@@ -10,10 +10,10 @@ import (
 	"encoding/hex"
 	"math/rand"
 	"strings"
-	"github.com/astaxie/beego/i18n"
 	"github.com/ActingCute/NeteaseCloudMusicApi/models"
 	"time"
 	"net/url"
+	"github.com/beego/i18n"
 )
 
 type baseController struct {
