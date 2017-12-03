@@ -3,28 +3,28 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Swagger UI</title>
+  <title>NeteaseCloudMusicApi</title>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="description" content="NeteaseCloudMusicApi">
+  <meta name="keywords" content="NeteaseCloudMusicApi">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <link href="https://fonts.googleapis.com/css?family=Open+Sans:400,700|Source+Code+Pro:300,600|Titillium+Web:400,600,700" rel="stylesheet">
+  <link rel="stylesheet" type="text/css" href="/static/AmazeUI/css/amazeui.min.css" >
   <link rel="stylesheet" type="text/css" href="./swagger-ui.css" >
   <link rel="icon" type="image/png" href="./favicon-32x32.png" sizes="32x32" />
   <link rel="icon" type="image/png" href="./favicon-16x16.png" sizes="16x16" />
-  <style>
-    html
-    {
-        box-sizing: border-box;
-        overflow: -moz-scrollbars-vertical;
-        overflow-y: scroll;
+  <link rel="stylesheet" type="text/css" href="/static/css/index.css" >
+  <style type="text/css">
+    .wrapper span a,.info .main a,.topbar{
+      display:none
     }
-    *,
-    *:before,
-    *:after
-    {
-        box-sizing: inherit;
+    small .version{color:red;background: transparent;border:0;border-color: rgba(0,0,0,0);}
+    .opblock-tag-section .opblock-tag{
+      background:#DDDDDD;
     }
-
-    body {
-      margin:0;
-      background: #fafafa;
+    .main .title small {
+      margin-left: 10px;
     }
   </style>
 </head>
@@ -67,6 +67,15 @@
 
 <div id="swagger-ui"></div>
 
+
+
+<footer class="am-margin-top">
+  <hr/>
+  <p class="am-text-center">
+    <small>by ActingCute <a href="http://www.miitbeian.gov.cn/">粤ICP备15047722号-1</a></small>
+  </p>
+</footer>
+
 <script src="./swagger-ui-bundle.js"> </script>
 <script src="./swagger-ui-standalone-preset.js"> </script>
 <script>
@@ -87,6 +96,7 @@ window.onload = function() {
 
   window.ui = ui
 }
+
 </script>
 </body>
 

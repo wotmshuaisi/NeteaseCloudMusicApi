@@ -42,6 +42,7 @@ func init() {
 }
 
 //歌单 uid+playlist
+//用户详情 uid+detail
 func SetCache(name string, value string, time int64) {
 	Cache = InitRedis()
 	if Cache == nil {
@@ -64,8 +65,6 @@ func GetCache(name string) string {
 	value, err := redis.String(Cache.Do("GET", name))
 	if err != nil {
 		beego.Error("redis get failed:", err)
-	} else {
-		beego.Error("Got GetCache %v \n", value)
 	}
 	defer Cache.Close()
 	return value

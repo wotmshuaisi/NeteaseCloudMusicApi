@@ -1,0 +1,9 @@
+@charset "utf-8"
+
+.wrapper span a,.info .main a,.topbar{
+    display:none
+}
+small .version{color:red;background: transparent;border:0;border-color: rgba(0,0,0,0);}
+    .opblock-tag-section .opblock-tag{
+    background:#DDDDDD;
+}

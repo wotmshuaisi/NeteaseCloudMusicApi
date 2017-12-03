@@ -33,8 +33,11 @@ type langType struct {
 
 const (
 	BaseApi = "http://music.163.com"
+	Dir = "/weapi/v1"
 	PhoneLoginApi = "/weapi/login/cellphone"
 	MusicListApi = "/weapi/user/playlist"
+	DetailApi = "/user/detail"
+	ClientToken = "1_jVUMqWEPke0/1/Vu56xCmJpo5vP1grjn_SOVVDzOc78w8OKLVZ2JH7IfkjSXqgfmh"
 )
 
 var (
@@ -72,7 +75,12 @@ func initLang() {
 
 }
 
+//func (this *baseController)Prepare(){
+//}
+
 func (this *baseController)Http(apiurl string, data []byte, method string) (b []byte, err error) {
+
+	beego.Debug("apiurl=", apiurl)
 
 	params, encSecKey, err := EncParams(string(data))
 
@@ -101,9 +109,12 @@ func (this *baseController)Http(apiurl string, data []byte, method string) (b []
 
 	var resp *http.Response
 	resp, err = http.DefaultClient.Do(request)
-
-	beego.Debug(request)
-
+	//beego.Debug(resp.Cookies())
+	if len(resp.Cookies()) > 0 {
+		Cookies = resp.Cookies()
+		this.SetMusicCookies()
+	}
+	//beego.Debug(Cookies)
 	if err != nil {
 		beego.Error("Post http.Do failed,[err=%s][url=%s]", err, apiurl)
 		return
@@ -113,9 +124,6 @@ func (this *baseController)Http(apiurl string, data []byte, method string) (b []
 	if err != nil {
 		beego.Error("Post ReadAll failed,[err=%s][url=%s]", err, apiurl)
 		return
-	}
-	if len(resp.Cookies()) > 0 {
-		Cookies = resp.Cookies()
 	}
 	return
 }
