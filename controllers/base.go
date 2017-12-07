@@ -33,10 +33,13 @@ type langType struct {
 
 const (
 	BaseApi = "http://music.163.com"
-	Dir = "/weapi/v1"
+	V1Dir = "/weapi/v1"
+	V3Dir = "/weapi/v3"
 	PhoneLoginApi = "/weapi/login/cellphone"
 	MusicListApi = "/weapi/user/playlist"
-	DetailApi = "/user/detail"
+	UserDetailApi = "/user/detail/"
+	PlaylistDetailApi = "/playlist/detail/"
+	MusicLyricApi = "/weapi/song/lyric?os=osx&lv=-1&kv=-1&tv=-1&id="
 	ClientToken = "1_jVUMqWEPke0/1/Vu56xCmJpo5vP1grjn_SOVVDzOc78w8OKLVZ2JH7IfkjSXqgfmh"
 )
 
@@ -81,6 +84,7 @@ func initLang() {
 func (this *baseController)Http(apiurl string, data []byte, method string) (b []byte, err error) {
 
 	beego.Debug("apiurl=", apiurl)
+	beego.Debug("api data = ",string(data))
 
 	params, encSecKey, err := EncParams(string(data))
 
@@ -197,6 +201,7 @@ func (this *baseController) NeedAPIinput(fields ...string) {
 				"phone":  "please_enter_phone",
 				"password":  "please_enter_password",
 				"uid": "please_enter_uid",
+				"id":"please_enter_id",
 			}
 			beego.Debug("缺少参数-----", resultStringList[field])
 			this.SetReturnData(400, this.L(resultStringList[field]), nil)

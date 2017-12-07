@@ -233,7 +233,7 @@ func (this *UserController)Detail() {
 		this.SetReturnData(500, "Program error", err)
 		return
 	}
-	body, err := this.Http(BaseApi + Dir + DetailApi + "/" + uidstr, detaildata, "POST")
+	body, err := this.Http(BaseApi + V1Dir + UserDetailApi + uidstr, detaildata, "POST")
 	if err != nil {
 		this.SetReturnData(500, "Program error", err)
 		return

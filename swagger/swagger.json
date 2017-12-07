@@ -12,6 +12,52 @@
     },
     "basePath": "/v1",
     "paths": {
+        "/music/lyric": {
+            "get": {
+                "tags": [
+                    "music"
+                ],
+                "description": "get music lyric",
+                "operationId": "MusicController.lyric",
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "id",
+                        "description": "The music id for lyric",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{string} get music lyric success"
+                    }
+                }
+            }
+        },
+        "/playlist/detail": {
+            "get": {
+                "tags": [
+                    "playlist"
+                ],
+                "description": "get user playlist detail",
+                "operationId": "PlayListController.detail",
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "id",
+                        "description": "The id for playlist detail",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "{string} get user playlist detail success"
+                    }
+                }
+            }
+        },
         "/user/cellphonelogin": {
             "get": {
                 "tags": [
@@ -105,6 +151,10 @@
         {
             "name": "user",
             "description": "Operations about User\n"
+        },
+        {
+            "name": "playlist",
+            "description": "Operations about PlayList\n"
         }
     ]
 }
