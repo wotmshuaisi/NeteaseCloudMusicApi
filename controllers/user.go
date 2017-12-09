@@ -25,11 +25,6 @@ type phonelogin struct {
 	ClientToken   string `json:"clientToken"`
 }
 
-//form.Set("offset", "0")
-//form.Set("uid", this.GetString("uid"))
-//form.Set("limit", "1000")
-//form.Set("csrf_token", "")
-
 type UserData struct {
 	Uid        int64 `json:"uid"`
 	Offset     int `json:"offset"`
@@ -73,7 +68,7 @@ type UserProfile struct {
 	AuthStatus         int `json:"authStatus"`
 	BackgroundImgId    int64 `json:"backgroundImgId"`
 	UserType           int `json:"userType"`
-	Experts            int`json:"experts"`        //{}
+	Experts            string `json:"experts"`        //{}
 	BackgroundUrl      string `json:"backgroundUrl"`
 	AvatarImgIdStr     int64 `json:"avatarImgIdStr"`
 	BackgroundImgIdStr int64 `json:"backgroundImgIdStr"`
@@ -116,10 +111,10 @@ var (
 )
 
 // @Title CellphoneLogin
-// @Description Logs user into the system
+// @Description 用手机号码登陆
 // @Param	phone			query 	string	true		"The phone    for login"
 // @Param	password		query 	string	true		"The password for login"
-// @Success 200 {string} login success
+// @Success 200 {object} controllers.User
 // @Failure 400 param error
 // @Failure 500 Program error
 // @Failure 501 Account number does not exist
@@ -165,7 +160,7 @@ func (this *UserController) CellphoneLogin() {
 }
 
 // @Title playlist
-// @Description get user playlist
+// @Description 获取用户歌单
 // @Success 200 {string} get playlist success
 // @router /playlist [get]
 // @Param uid query string true "The uid for user playlist"
@@ -207,7 +202,7 @@ func (this *UserController) Playlist() {
 }
 
 // @Title detail
-// @Description get user detail
+// @Description 获取用户详情
 // @Success 200 {string} get user detail success
 // @router /detail [get]
 // @Param uid query string true "The uid for user detail"

@@ -18,3 +18,4 @@ golang版网易云音乐api，使用beego api框架搭建
 # 参照了以下前辈的代码
     https://github.com/yitimo/api-163-go/blob
     https://github.com/Binaryify/NeteaseCloudMusicApi
+    http://moonlib.com/606.html#more-606

@@ -1,0 +1,1 @@
+docker run -d -p 8080:8080 --name="neteasecloudmusicapi" -v /neteasecloudmusicapi/log:/log -v /neteasecloudmusicapi/webData/upload:/neteasecloudmusicapi/upload -v /neteasecloudmusicapi/webData/conf:/neteasecloudmusicapi/conf neteasecloudmusicapi > dockerBuild.log
