@@ -13,7 +13,7 @@ import (
 	"github.com/ActingCute/NeteaseCloudMusicApi/models"
 	"time"
 	"net/url"
-	"github.com/beego/i18n"
+	"github.com/astaxie/beego/i18n"
 )
 
 type baseController struct {
@@ -31,6 +31,12 @@ type langType struct {
 	Lang, Name string
 }
 
+type UserCellphoneLoginRestfulReturn struct {
+	Result  int16
+	Message string
+	Data    User
+}
+
 const (
 	BaseApi = "http://music.163.com"
 	V1Dir = "/weapi/v1"
@@ -39,7 +45,7 @@ const (
 	MusicListApi = "/weapi/user/playlist"
 	UserDetailApi = "/user/detail/"
 	PlaylistDetailApi = "/playlist/detail/"
-	MusicLyricApi = "/weapi/song/lyric?os=osx&lv=-1&kv=-1&tv=-1&id="
+	MusicLyricApi = "/api/song/lyric?os=pc&lv=-1&kv=-1&tv=-1&id="
 	ClientToken = "1_jVUMqWEPke0/1/Vu56xCmJpo5vP1grjn_SOVVDzOc78w8OKLVZ2JH7IfkjSXqgfmh"
 )
 
@@ -78,9 +84,6 @@ func initLang() {
 
 }
 
-//func (this *baseController)Prepare(){
-//}
-
 func (this *baseController)Http(apiurl string, data []byte, method string) (b []byte, err error) {
 
 	beego.Debug("apiurl=", apiurl)
@@ -93,6 +96,9 @@ func (this *baseController)Http(apiurl string, data []byte, method string) (b []
 		return
 
 	}
+
+	//beego.Debug("params=",params)
+	//beego.Debug("encSecKey=",encSecKey)
 
 	form := url.Values{}
 	form.Set("encSecKey", encSecKey)
@@ -107,13 +113,14 @@ func (this *baseController)Http(apiurl string, data []byte, method string) (b []
 
 	request = this.getRequestHeader(request)
 
+	//beego.Debug(request)
+
 	for _, c := range Cookies {
 		request.AddCookie(c)
 	}
 
 	var resp *http.Response
 	resp, err = http.DefaultClient.Do(request)
-	//beego.Debug(resp.Cookies())
 	if len(resp.Cookies()) > 0 {
 		Cookies = resp.Cookies()
 		this.SetMusicCookies()
