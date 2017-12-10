@@ -2,10 +2,11 @@
 golang版网易云音乐api，使用beego api框架搭建
 
 # 编译和运行环境说明
-    docker 17.04.0-ce
+    docker 1.9.1
     golang 1.9
     ubuntu 14.04
-    运行脚本 ./newBuildDocker 可以一键编译并运行
+    1)将vendor解压
+    2)运行脚本 ./newBuildDocker 可以一键编译并运行
 
 # 自动化生成文档
     配置文件中设置：EnableDocs = true

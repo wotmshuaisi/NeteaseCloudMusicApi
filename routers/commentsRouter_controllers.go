@@ -23,14 +23,6 @@ func init() {
 			MethodParams: param.Make(),
 			Params: nil})
 
-	beego.GlobalControllerRouter["github.com/ActingCute/NeteaseCloudMusicApi/controllers:PlayListController"] = append(beego.GlobalControllerRouter["github.com/ActingCute/NeteaseCloudMusicApi/controllers:PlayListController"],
-		beego.ControllerComments{
-			Method: "Integration",
-			Router: `/integration`,
-			AllowHTTPMethods: []string{"get"},
-			MethodParams: param.Make(),
-			Params: nil})
-
 	beego.GlobalControllerRouter["github.com/ActingCute/NeteaseCloudMusicApi/controllers:UserController"] = append(beego.GlobalControllerRouter["github.com/ActingCute/NeteaseCloudMusicApi/controllers:UserController"],
 		beego.ControllerComments{
 			Method: "CellphoneLogin",
