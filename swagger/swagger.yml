@@ -42,25 +42,6 @@ paths:
           description: ""
           schema:
             $ref: '#/definitions/controllers.PlaylistJson'
-  /playlist/integration:
-    get:
-      tags:
-      - playlist
-      description: 通过歌单id获取所有音乐，包括音乐url，歌词，歌手，头像 等信息
-      operationId: PlayListController.Integration
-      parameters:
-      - in: query
-        name: id
-        description: The id for playlist integration
-        required: true
-        type: string
-      responses:
-        "200":
-          description: ""
-          schema:
-            type: array
-            items:
-              $ref: '#/definitions/controllers.Music'
   /user/cellphonelogin:
     get:
       tags:
@@ -292,23 +273,6 @@ definitions:
       userid:
         type: integer
         format: int64
-  controllers.Music:
-    title: Music
-    type: object
-    properties:
-      author:
-        type: string
-      id:
-        type: integer
-        format: int64
-      lrc:
-        type: string
-      pic:
-        type: string
-      title:
-        type: string
-      url:
-        type: string
   controllers.PlaylistData:
     title: PlaylistData
     type: object

@@ -3,7 +3,7 @@ package controllers
 import (
 	"github.com/astaxie/beego"
 	"encoding/json"
-	"strconv"
+	//"time"
 )
 
 // Operations about PlayList
@@ -191,102 +191,4 @@ func (this *PlayListController)Detail() {
 	var playlist PlaylistJson
 	json.Unmarshal(body,&playlist)
 	this.SetReturnData(200, "ok", playlist)
-}
-
-// @Title Integration
-// @Description 通过歌单id获取所有音乐，包括音乐url，歌词，歌手，头像 等信息
-// @Success 200 {object} []controllers.Music
-// @router /integration [get]
-// @Param id query string true "The id for playlist integration"
-func (this *PlayListController)Integration() {
-	this.NeedAPIinput("id")
-	id, _ := this.GetInt64("id")
-	if id < 1 {
-		this.SetReturnData(500, "id error", nil)
-		return
-	}
-	idstr := this.GetString("id")
-	cname := idstr + "playlistintegration"
-	list := GetCache(cname)
-	beego.Debug(list)
-	var playlist PlaylistJson
-	if len(list) > 0 {
-		json.Unmarshal([]byte(list),&playlist)
-	}else{
-		var detail PlaylistDetail
-		detail.CsrfToken = ""
-		detail.Id = id
-		detail.Limit = 1000
-		detail.N = 1000
-		detail.Total = true
-		detail.Offset = 0
-		detaildata, err := json.Marshal(detail)
-		if err != nil {
-			this.SetReturnData(500, "Program error", err)
-			return
-		}
-		body, err := this.Http(BaseApi + V3Dir + PlaylistDetailApi, detaildata, "POST")
-		if err != nil {
-			this.SetReturnData(500, "Program error", err)
-			return
-		}
-		if len(string(body)) > 0 {
-			SetCache(cname, string(body), 600)
-		}
-		json.Unmarshal(body,&playlist)
-	}
-
-	musics := make([]Music,0)
-	for  _,m:= range playlist.Playlist.Tracks{
-		//获取歌名
-		var music Music
-		music.Title = m.Name
-		music.Id = m.Id
-		for _,n := range m.Alia {
-			if len(music.Title) > 0 {
-				music.Title += " "
-			}
-			music.Title += n
-		}
-		music.Title += " " + m.Al.Name
-		//封面
-		music.Pic = m.Al.PicUrl
-		//歌手
-		for _,a := range m.Ar {
-			if len(music.Author) > 0 {
-				music.Author += " "
-			}
-			music.Author += a.Name
-		}
-		idstr := strconv.FormatInt(m.Id,10)
-		//url
-		music.Url = "http://music.163.com/song/media/outer/url?id="+idstr+".mp3"
-		//歌词
-		cname := idstr + "musiclyric"
-		list := GetCache(cname)
-		var lrc Lyric
-		if len(list) > 0 {
-			json.Unmarshal([]byte(list), &lrc)
-			music.Lrc = lrc.Lrc.Lyric
-			musics = append(musics,music)
-			continue
-		}
-		var detail interface{}
-		detaildata, err := json.Marshal(detail)
-		if err != nil {
-			continue
-		}
-		body, err := this.Http(BaseApi + MusicLyricApi + idstr, detaildata, "GET")
-		if err != nil {
-			continue
-		}
-		if len(string(body)) > 0 {
-			SetCache(cname, string(body), 600)
-		}
-		json.Unmarshal(body, &lrc)
-		music.Lrc = lrc.Lrc.Lyric
-		musics = append(musics,music)
-	}
-
-	this.SetReturnData(200, "ok", musics)
 }
