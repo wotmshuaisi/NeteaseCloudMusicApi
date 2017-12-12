@@ -8,7 +8,7 @@ import (
 
 // Operations about PlayList
 type PlayListController struct {
-	baseController
+	BaseController
 }
 
 type PlaylistDetail struct {
@@ -130,12 +130,12 @@ type CreatorData struct {
 	DefaultAvatar      bool `json:"defaultAvatar"`
 	Description        string `json:"description"`
 	DetailDescription  string `json:"detailDescription"`
-	djStatus           int `json:"djStatus"`
+	DjStatus           int `json:"djStatus"`
 	ExpertTags         []string `json:"expertTags"`
 	Experts            []string `json:"experts"`
 	Followed           bool `json:"followed"`
 	Gender             int `json:"gender"`
-	mutual             bool `json:"mutual"`
+	Mutual             bool `json:"mutual"`
 	Nickname           string `json:"nickname"`
 	Province           int `json:"province"`
 	RemarkName         []string `json:"remarkName"`

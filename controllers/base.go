@@ -16,7 +16,7 @@ import (
 	"github.com/beego/i18n"
 )
 
-type baseController struct {
+type BaseController struct {
 	beego.Controller
 	i18n.Locale
 }
@@ -84,7 +84,7 @@ func initLang() {
 
 }
 
-func (this *baseController)Http(apiurl string, data []byte, method string) (b []byte, err error) {
+func (this *BaseController)Http(apiurl string, data []byte, method string) (b []byte, err error) {
 
 	beego.Debug("apiurl=", apiurl)
 	beego.Debug("api data = ",string(data))
@@ -139,7 +139,7 @@ func (this *baseController)Http(apiurl string, data []byte, method string) (b []
 	return
 }
 
-func (this *baseController)getRequestHeader(request *http.Request) *http.Request {
+func (this *BaseController)getRequestHeader(request *http.Request) *http.Request {
 	request.Header.Set("Accept", "*/*")
 	request.Header.Set("Accept-Language", "zh-CN,zh;q=0.8,gl;q=0.6,zh-TW;q=0.4")
 	request.Header.Set("Connection", "Keep-Alive")
@@ -162,7 +162,7 @@ func GetBytes(key interface{}) ([]byte, error) {
 	return buf.Bytes(), nil
 }
 
-func (this *baseController)Md5(str string) string {
+func (this *BaseController)Md5(str string) string {
 	if len(str) < 1 {
 		//什么都没有,不给你加密
 		return str
@@ -174,7 +174,7 @@ func (this *baseController)Md5(str string) string {
 }
 
 //随机客户端
-func (this *baseController)RandomUserAgent() string {
+func (this *BaseController)RandomUserAgent() string {
 	userAgentList := []string{
 		"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/59.0.3071.115 Safari/537.36",
 		"Mozilla/5.0 (iPhone; CPU iPhone OS 9_1 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Version/9.0 Mobile/13B143 Safari/601.1",
@@ -199,7 +199,7 @@ func (this *baseController)RandomUserAgent() string {
 	return userAgentList[num]
 }
 
-func (this *baseController) NeedAPIinput(fields ...string) {
+func (this *BaseController) NeedAPIinput(fields ...string) {
 
 	for _, field := range fields {
 
@@ -218,21 +218,21 @@ func (this *baseController) NeedAPIinput(fields ...string) {
 
 }
 
-func (this *baseController) SetReturnData(result int, message string, data interface{}) {
+func (this *BaseController) SetReturnData(result int, message string, data interface{}) {
 
 	rt := &RestfulReturn{Result: int16(result), Message: message, Data: data}
 	this.Data["json"] = rt
 	this.ServeJSON()
 
 }
-func (this *baseController) L(name string) string {
+func (this *BaseController) L(name string) string {
 
 	return this.Tr(name)
 
 }
 
 //处理返回code
-func (this *baseController)StatusCode(code int) bool {
+func (this *BaseController)StatusCode(code int) bool {
 	switch code {
 	case 200:
 		return true
@@ -244,7 +244,7 @@ func (this *baseController)StatusCode(code int) bool {
 }
 
 //判断登录是否过期
-func (this *baseController)IsLogin() bool {
+func (this *BaseController)IsLogin() bool {
 	if len(Cookies) > 0 {
 		this.SetMusicCookies()
 		for _, v := range Cookies {
@@ -262,7 +262,7 @@ func (this *baseController)IsLogin() bool {
 	return false
 }
 
-func (this baseController)SetMusicCookies() {
+func (this BaseController)SetMusicCookies() {
 	var cookieNum int = len(Cookies);
 	for i := 0; i < cookieNum; i++ {
 		var curCk *http.Cookie = Cookies[i];

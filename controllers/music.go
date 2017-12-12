@@ -5,7 +5,7 @@ import (
 )
 
 type MusicController struct {
-	baseController
+	BaseController
 }
 
 type Lyric struct {

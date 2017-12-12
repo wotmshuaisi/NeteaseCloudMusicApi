@@ -8,7 +8,7 @@ import (
 
 // Operations about User
 type UserController struct {
-	baseController
+	BaseController
 }
 
 type login struct {
