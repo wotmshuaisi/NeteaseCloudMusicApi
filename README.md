@@ -1,5 +1,5 @@
 # NeteaseCloudMusicApi
-golang版网易云音乐api，使用beego api框架搭建
+golang版网易云音乐api，请大家多多指教
 
 # 编译和运行环境说明
     docker 1.9.1
