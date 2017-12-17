@@ -18,6 +18,9 @@ golang版网易云音乐api，请大家多多指教
     配置文件 /neteasecloudmusicapi/webData/conf
     日志文件 /neteasecloudmusicapi/log
 
+#demo
+    http://haibarai.com/music
+
 # 参照了以下前辈的代码
     https://github.com/yitimo/api-163-go/blob
     https://github.com/Binaryify/NeteaseCloudMusicApi
