@@ -163,8 +163,9 @@ func (this *PlayListController)Detail() {
 	idstr := this.GetString("id")
 	cname := idstr + "playlistdetail"
 	list := GetCache(cname)
-	beego.Debug(list)
+	//beego.Debug(list)
 	if len(list) > 0 {
+		beego.Debug("使用缓存---")
 		this.SetReturnData(200, "ok", list)
 		return
 	}

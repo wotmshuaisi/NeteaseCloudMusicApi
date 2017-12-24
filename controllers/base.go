@@ -52,7 +52,6 @@ const (
 var (
 	langTypes   []*langType
 	Cookies []*http.Cookie
-	RedisEnable bool
 )
 
 func init() {
