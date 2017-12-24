@@ -1,7 +1,7 @@
 package controllers
 
 import (
-	"github.com/ActingCute/blog/models"
+	"github.com/ActingCute/NeteaseCloudMusicApi/models"
 	"github.com/astaxie/beego"
 	"github.com/astaxie/beego/cache"
 	_ "github.com/astaxie/beego/cache/redis"
