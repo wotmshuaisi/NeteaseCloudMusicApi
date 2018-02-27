@@ -164,9 +164,10 @@ func (this *PlayListController)Detail() {
 	cname := idstr + "playlistdetail"
 	list := GetCache(cname)
 	//beego.Debug(list)
-	if len(list) > 0 {
+	usecache ,_:= this.GetInt64("refresh")
+	if len(list) > 0 && usecache == 0{
 		beego.Debug("使用缓存---")
-		this.SetReturnData(200, "ok", list)
+		this.SetReturnData(200, "ok", string(list))
 		return
 	}
 	var detail PlaylistDetail
@@ -187,7 +188,7 @@ func (this *PlayListController)Detail() {
 		return
 	}
 	if len(string(body)) > 0 {
-		SetCache(cname, string(body), 600)
+		SetCache(cname, body, 600)
 	}
 	var playlist PlaylistJson
 	json.Unmarshal(body,&playlist)

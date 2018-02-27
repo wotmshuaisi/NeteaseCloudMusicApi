@@ -55,10 +55,11 @@ func (this *MusicController)Lyric() {
 	idstr := this.GetString("id")
 	cname := idstr + "musiclyric"
 	list := GetCache(cname)
+	usecache ,_:= this.GetInt64("refresh")
 	//beego.Debug(list)
-	if len(list) > 0 {
+	if len(list) > 0 && usecache == 0{
 		var lrc Lyric
-		json.Unmarshal([]byte(list), &lrc)
+		json.Unmarshal(list, &lrc)
 		this.SetReturnData(lrc.Code, "ok", lrc)
 		return
 	}
@@ -74,7 +75,7 @@ func (this *MusicController)Lyric() {
 		return
 	}
 	if len(string(body)) > 0 {
-		SetCache(cname, string(body), 600)
+		SetCache(cname, body, 600)
 	}
 	var lrc Lyric
 	json.Unmarshal(body, &lrc)

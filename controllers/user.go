@@ -197,7 +197,7 @@ func (this *UserController) Playlist() {
 		this.SetReturnData(500, "Program error", err)
 		return
 	}
-	SetCache(cname, string(body), 600)
+	SetCache(cname, body, 600)
 	this.SetReturnData(200, "ok", string(body))
 }
 
@@ -217,8 +217,9 @@ func (this *UserController)Detail() {
 	cname := uidstr + "detail"
 	list := GetCache(cname)
 	beego.Debug(list)
-	if len(list) > 0 {
-		this.SetReturnData(200, "ok", list)
+	usecache ,_:= this.GetInt64("refresh")
+	if len(list) > 0 && usecache == 0 {
+		this.SetReturnData(200, "ok", string(list))
 		return
 	}
 	var detail UserData
@@ -233,6 +234,6 @@ func (this *UserController)Detail() {
 		this.SetReturnData(500, "Program error", err)
 		return
 	}
-	SetCache(cname, string(body), 600)
+	SetCache(cname, body, 600)
 	this.SetReturnData(200, "ok", string(body))
 }

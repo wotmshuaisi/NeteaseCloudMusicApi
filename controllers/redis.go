@@ -55,15 +55,15 @@ func GetCacheInt(name string) int {
 	return 0
 }
 
-func GetCache(name string) string {
+func GetCache(name string) []byte {
 	if !RedisEnable {
-		beego.Info("GetCacheString RedisEnable is ", RedisEnable)
-		return ""
+		beego.Info("GetCacheByte RedisEnable is ", RedisEnable)
+		return []byte("")
 	}
 	var err error
-	val, _ := redis.String(Cache.Get(name), err)
+	val, _ := redis.Bytes(Cache.Get(name), err)
 	return val
-	return ""
+	return []byte("")
 }
 
 func SetCacheInt(name string, val int, timeout int64) {
@@ -81,7 +81,7 @@ func SetCacheInt(name string, val int, timeout int64) {
 	beego.Debug("SetCacheInt is ok. name:", name)
 }
 
-func SetCache(name string, val string, timeout int64) {
+func SetCache(name string, val interface{}, timeout int64) {
 	beego.Debug("timeout=",time.Duration(timeout))
 	if !RedisEnable {
 		beego.Info("SetCacheString RedisEnable is ", RedisEnable)
